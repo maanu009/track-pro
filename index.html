@@ -3409,7 +3409,7 @@
       } catch (e) { console.error("Error rendering medal count", e); }
     }
 
-    (function initApp() {
+    function initApp() {
       // Setup auth listener before anything else
       window.firebaseAuthAPI.onAuthStateChanged(window.auth, async (user) => {
         if (user) {
@@ -3460,9 +3460,10 @@
           setTimeout(() => { document.getElementById('loader').classList.add('hide') }, 500);
         }
       }, 0);
-    })();
+    };
 
     window.addEventListener('DOMContentLoaded', () => {
+      initApp();
       initParticles();
       animateCounters();
 
