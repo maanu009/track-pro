@@ -3436,22 +3436,27 @@
       // Load data and setup UI sequence
       setTimeout(async () => {
         // Failsafe: Hide loader after 5 seconds if Firebase hangs
-        const fallbackTimer = setTimeout(() => {
-          document.getElementById('loader').classList.add('hide');
-          console.warn('Loader timeout reached. Database might not be ready.');
+        setTimeout(() => {
+          const loader = document.getElementById('loader');
+          if (!loader.classList.contains('hide')) {
+            loader.classList.add('hide');
+            console.warn('Loader timeout reached. Database might not be ready or internet is disconnected.');
+          }
         }, 5000);
 
         try {
-          await API.loadAll();
+          await Promise.race([
+            API.loadAll(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase timeout')), 4500))
+          ]);
           checkAuthUI();
           checkRegistrationStatus();
           await renderMedalCount();
           renderPublicEvents();
           renderEventChips();
         } catch (e) {
-          console.error("Init Error:", e);
+          console.error("Init Error or Timeout:", e);
         } finally {
-          clearTimeout(fallbackTimer);
           setTimeout(() => { document.getElementById('loader').classList.add('hide') }, 500);
         }
       }, 0);
